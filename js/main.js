@@ -92,6 +92,25 @@
   if (prevBtn) prevBtn.addEventListener('click', function () { goTo(index - 1); });
   if (nextBtn) nextBtn.addEventListener('click', function () { goTo(index + 1); });
 
+  // Touch/mouse swipe: Pointer Events cover both without separate touch and
+  // mouse handlers. Direction is judged only on release, against the total
+  // horizontal distance moved -- simpler than a live drag-follow and enough
+  // to make the carousel feel native on mobile.
+  var dragStartX = null;
+  var SWIPE_THRESHOLD = 40;
+
+  viewport.addEventListener('pointerdown', function (e) {
+    dragStartX = e.clientX;
+  });
+  viewport.addEventListener('pointerup', function (e) {
+    if (dragStartX === null) return;
+    var deltaX = e.clientX - dragStartX;
+    dragStartX = null;
+    if (Math.abs(deltaX) < SWIPE_THRESHOLD) return;
+    if (deltaX < 0) goTo(index + 1); else goTo(index - 1);
+  });
+  viewport.addEventListener('pointercancel', function () { dragStartX = null; });
+
   update();
 })();
 
@@ -118,6 +137,18 @@
 
   var SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwWkmCrOEKTpUIvNofOPXNxowECGESmMFAEoArMIHUANfLsMEaLw4NHiBudYj6swAKq/exec';
 
+  // Digits-only as the visitor types (keeps a leading "+" for an international
+  // country code if they start with one) -- belt-and-braces alongside the
+  // pattern attribute, and stops letters/symbols from being typed at all.
+  var phoneInput = form.phone;
+  if (phoneInput) {
+    phoneInput.addEventListener('input', function () {
+      var hasLeadingPlus = this.value.charAt(0) === '+';
+      var digits = this.value.replace(/[^0-9]/g, '');
+      this.value = (hasLeadingPlus ? '+' : '') + digits;
+    });
+  }
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
 
@@ -128,6 +159,7 @@
 
     var name = form.name.value.trim();
     var phone = form.phone.value.trim();
+    var email = form.email ? form.email.value.trim() : '';
     var unit = form.unit.value;
 
     var submitBtn = form.querySelector('.lead-submit');
@@ -136,6 +168,7 @@
     var data = new FormData();
     data.append('name', name);
     data.append('phone', phone);
+    data.append('email', email);
     data.append('unit', unit);
     data.append('page', document.title);
     data.append('lang', document.documentElement.lang);
@@ -157,10 +190,14 @@
 // Cookie consent banner: built here and injected into every page (AR + EN,
 // all 8 HTML files) rather than duplicated as markup in each file. Shown once
 // per browser session (sessionStorage, not localStorage, so it comes back on
-// the next visit/session) after a short delay -- not tied to scroll position.
-// Auto-hides itself after AUTO_HIDE_MS if the visitor doesn't tap Agree/close
-// first (per explicit request); note this only records that the banner was
-// shown, not that the visitor actively agreed to anything.
+// the next visit/session). On pages with a .hero (the two landing pages),
+// it only appears once the visitor has scrolled all the way past the hero --
+// it must never sit over the hero's price/CTA. That trigger fires once and
+// is then permanent for the rest of the session: scrolling back up to the
+// hero afterwards does not hide the banner again. Pages without a .hero fall
+// back to a short delay. Auto-hides itself after AUTO_HIDE_MS if the visitor
+// doesn't tap Agree/close first (per explicit request); note this only
+// records that the banner was shown, not that the visitor actively agreed.
 (function () {
   var STORAGE_KEY = 'phh-cookie-consent';
   var SHOW_DELAY_MS = 900;
@@ -212,11 +249,23 @@
   banner.querySelector('.cookie-banner-agree').addEventListener('click', dismiss);
   banner.querySelector('.cookie-banner-close').addEventListener('click', dismiss);
 
-  window.setTimeout(function () {
+  function reveal() {
     banner.classList.add('is-visible');
     if (ctaBar) {
       document.documentElement.style.setProperty('--cta-bar-offset', banner.offsetHeight + 'px');
     }
     autoHideTimer = window.setTimeout(dismiss, AUTO_HIDE_MS);
-  }, SHOW_DELAY_MS);
+  }
+
+  var hero = document.querySelector('.hero');
+  if (hero && 'IntersectionObserver' in window) {
+    var heroWatcher = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) return;
+      heroWatcher.disconnect();
+      window.setTimeout(reveal, 300);
+    });
+    heroWatcher.observe(hero);
+  } else {
+    window.setTimeout(reveal, SHOW_DELAY_MS);
+  }
 })();

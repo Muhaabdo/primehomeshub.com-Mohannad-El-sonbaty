@@ -27,6 +27,7 @@ var HEADERS = [
   'التاريخ والوقت',
   'الاسم',
   'رقم الموبايل',
+  'البريد الإلكتروني',
   'الوحدة المهتم بيها',
   'الصفحة',
   'اللغة',
@@ -41,6 +42,7 @@ function doPost(e) {
     new Date(),
     p.name || '',
     p.phone || '',
+    p.email || '',
     p.unit || '',
     p.page || '',
     p.lang || '',
@@ -88,10 +90,11 @@ function formatLeadSheet_(sheet) {
   sheet.setColumnWidth(1, 150); // التاريخ والوقت
   sheet.setColumnWidth(2, 170); // الاسم
   sheet.setColumnWidth(3, 130); // رقم الموبايل
-  sheet.setColumnWidth(4, 170); // الوحدة المهتم بيها
-  sheet.setColumnWidth(5, 220); // الصفحة
-  sheet.setColumnWidth(6, 70);  // اللغة
-  sheet.setColumnWidth(7, 200); // GCLID
+  sheet.setColumnWidth(4, 190); // البريد الإلكتروني
+  sheet.setColumnWidth(5, 170); // الوحدة المهتم بيها
+  sheet.setColumnWidth(6, 220); // الصفحة
+  sheet.setColumnWidth(7, 70);  // اللغة
+  sheet.setColumnWidth(8, 200); // GCLID
 
   sheet.getRange(2, 1, sheet.getMaxRows() - 1, 1).setNumberFormat('yyyy-mm-dd hh:mm:ss');
   sheet.getRange(2, 1, sheet.getMaxRows() - 1, colCount).setHorizontalAlignment('right');
