@@ -837,6 +837,12 @@ html[lang="ar"] .distance-item .d-num{ font-family:var(--font-ar); }
 .amenity-card h3{ font-size:16.5px; margin-bottom:8px; }
 .amenity-card p{ font-size:13.5px; margin:0; line-height:1.6; }
 .amenities-note{ text-align:center; color:var(--muted); margin-top:36px; }
+.plus-suffix{
+  display:inline-block;
+  direction:ltr;
+  unicode-bidi:isolate;
+  margin-inline-start:2px;
+}
 
 /* ---------- Gallery ---------- */
 .gallery-carousel{ position:relative; max-width:900px; margin-inline:auto; }
