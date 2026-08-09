@@ -1003,6 +1003,14 @@ html[lang="ar"] .footer-col h4{ letter-spacing:0; text-transform:none; }
 .footer-col .contact-item{ display:flex; align-items:flex-start; gap:10px; margin-bottom:14px; }
 .footer-col .contact-item .icon{ width:18px; height:18px; margin-top:2px; }
 
+.footer-disclaimer{
+  border-top:1px solid rgba(255,255,255,0.12);
+  padding-block:24px;
+  font-size:12px;
+  line-height:1.9;
+  color:rgba(255,255,255,0.45);
+}
+
 .footer-bottom{
   border-top:1px solid rgba(255,255,255,0.12);
   padding-block:24px;
