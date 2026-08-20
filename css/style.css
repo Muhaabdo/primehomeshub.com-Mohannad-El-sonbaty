@@ -1172,6 +1172,8 @@ html[lang="ar"] .legal-toc ol{ padding-inline-start:0; padding-inline-end:20px; 
   Mobile-only persistent WhatsApp CTA, fixed to the bottom of the viewport so the
   action is visible without scrolling. --cta-bar-offset lets a future cookie-notice
   banner push this bar upward (set the variable on :root) instead of covering it.
+  Stays off-screen (translateY) until js/main.js reveals it once the hero has
+  scrolled out of view, so it doesn't compete with the hero's own CTA buttons.
 */
 :root{ --cta-bar-offset:0px; }
 
@@ -1185,8 +1187,10 @@ html[lang="ar"] .legal-toc ol{ padding-inline-start:0; padding-inline-end:20px; 
   border-top:1px solid var(--border);
   box-shadow:0 -6px 20px rgba(0,0,0,0.1);
   padding:12px 16px calc(12px + env(safe-area-inset-bottom));
-  transition:bottom .25s ease;
+  transition:bottom .25s ease, transform .3s ease;
+  transform:translateY(120%);
 }
+.mobile-cta-bar.is-visible{ transform:translateY(0); }
 .mobile-cta-bar .btn{ width:100%; padding:13px 20px; }
 .mobile-cta-bar .icon{ width:18px; height:18px; stroke:currentColor; }
 

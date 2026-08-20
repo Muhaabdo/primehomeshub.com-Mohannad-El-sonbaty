@@ -114,6 +114,25 @@
   update();
 })();
 
+// Sticky mobile WhatsApp bar: stays hidden below the viewport until the hero
+// has scrolled out of view, so it doesn't sit on top of the hero's own CTA
+// buttons right after the page loads.
+(function () {
+  var ctaBar = document.querySelector('.mobile-cta-bar');
+  var hero = document.querySelector('.hero');
+  if (!ctaBar || !hero) return;
+
+  if (!('IntersectionObserver' in window)) {
+    ctaBar.classList.add('is-visible');
+    return;
+  }
+
+  var heroWatcher = new IntersectionObserver(function (entries) {
+    ctaBar.classList.toggle('is-visible', !entries[0].isIntersecting);
+  });
+  heroWatcher.observe(hero);
+})();
+
 // Capture the Google Ads click id (gclid) from the URL as soon as the page
 // loads, and remember it for the rest of this session. The visitor may click
 // an in-page anchor (e.g. #offer) before submitting, but never navigates to
