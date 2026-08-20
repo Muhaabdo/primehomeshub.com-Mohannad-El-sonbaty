@@ -212,14 +212,14 @@
 // Cookie consent banner: built here and injected into every page (AR + EN,
 // all 8 HTML files) rather than duplicated as markup in each file. Shown once
 // per browser session (sessionStorage, not localStorage, so it comes back on
-// the next visit/session). On pages with a .hero (the two landing pages),
-// it only appears once the visitor has scrolled all the way past the hero --
-// it must never sit over the hero's price/CTA. That trigger fires once and
-// is then permanent for the rest of the session: scrolling back up to the
-// hero afterwards does not hide the banner again. Pages without a .hero fall
-// back to a short delay. Auto-hides itself after AUTO_HIDE_MS if the visitor
-// doesn't tap Agree/close first (per explicit request); note this only
-// records that the banner was shown, not that the visitor actively agreed.
+// the next visit/session). On pages with a .hero (the two landing pages), it
+// must never sit over the hero's price/CTA -- the hero-intersection watcher
+// keeps running for as long as the banner is undismissed, so scrolling back
+// up to the hero re-hides it (temporary hide, not a dismissal) and scrolling
+// past it again brings it back. Pages without a .hero fall back to a short
+// delay. Auto-hides itself after AUTO_HIDE_MS if the visitor doesn't tap
+// Agree/close first (per explicit request); note this only records that the
+// banner was shown, not that the visitor actively agreed.
 (function () {
   var STORAGE_KEY = 'phh-cookie-consent';
   var SHOW_DELAY_MS = 900;
@@ -259,9 +259,19 @@
 
   var ctaBar = document.querySelector('.mobile-cta-bar');
   var autoHideTimer = null;
+  var revealTimer = null;
+  var heroWatcher = null;
 
-  function dismiss() {
+  function clearTimers() {
     if (autoHideTimer) window.clearTimeout(autoHideTimer);
+    if (revealTimer) window.clearTimeout(revealTimer);
+    autoHideTimer = revealTimer = null;
+  }
+
+  // Permanent for the rest of the session (button click or auto-hide timeout).
+  function dismiss() {
+    clearTimers();
+    if (heroWatcher) heroWatcher.disconnect();
     banner.classList.remove('is-visible');
     document.documentElement.style.setProperty('--cta-bar-offset', '0px');
     sessionStorage.setItem(STORAGE_KEY, '1');
@@ -279,15 +289,26 @@
     autoHideTimer = window.setTimeout(dismiss, AUTO_HIDE_MS);
   }
 
+  // Temporary hide (hero back in view) -- unlike dismiss(), doesn't touch
+  // sessionStorage, so reveal() can bring it back once the hero scrolls away again.
+  function hide() {
+    clearTimers();
+    banner.classList.remove('is-visible');
+    document.documentElement.style.setProperty('--cta-bar-offset', '0px');
+  }
+
   var hero = document.querySelector('.hero');
   if (hero && 'IntersectionObserver' in window) {
-    var heroWatcher = new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting) return;
-      heroWatcher.disconnect();
-      window.setTimeout(reveal, 300);
+    heroWatcher = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) {
+        hide();
+      } else {
+        clearTimers();
+        revealTimer = window.setTimeout(reveal, 300);
+      }
     });
     heroWatcher.observe(hero);
   } else {
-    window.setTimeout(reveal, SHOW_DELAY_MS);
+    revealTimer = window.setTimeout(reveal, SHOW_DELAY_MS);
   }
 })();
