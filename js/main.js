@@ -179,9 +179,12 @@
         window.location.href = 'thank-you.html';
       })
       .catch(function () {
-        var message = 'مرحبًا، اسمي ' + name + ' ورقمي ' + phone +
-          '، حابب أعرف تفاصيل أكتر عن مشروع Hacienda Ras Al Hekma';
-        if (unit) message += ' - وحدة ' + unit;
+        var projectName = form.dataset.project || document.title;
+        var isAr = document.documentElement.lang === 'ar';
+        var message = isAr
+          ? 'مرحبًا، اسمي ' + name + ' ورقمي ' + phone + '، حابب أعرف تفاصيل أكتر عن مشروع ' + projectName
+          : 'Hi, my name is ' + name + ' and my number is ' + phone + ', I\'d like more details about ' + projectName;
+        if (unit) message += (isAr ? ' - وحدة ' : ' - unit ') + unit;
         window.location.href = 'https://wa.me/201001413177?text=' + encodeURIComponent(message);
       });
   });
