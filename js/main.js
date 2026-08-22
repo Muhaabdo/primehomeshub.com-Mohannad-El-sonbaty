@@ -55,6 +55,38 @@
   }, { passive: true });
 })();
 
+// Language switch: land on the same section on the other-language page instead
+// of always resetting to the top. AR/EN twin pages share section ids (e.g.
+// id="units"), so on click we just work out which section is currently in
+// view and carry it over as a URL hash -- scroll-margin-top (css/style.css)
+// then keeps the sticky navbar from covering the section once we land there.
+(function () {
+  var langLinks = document.querySelectorAll('.lang-switch, .footer-lang');
+  if (!langLinks.length) return;
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  if (!sections.length) return;
+
+  var navbar = document.querySelector('.navbar');
+
+  function currentSectionId() {
+    var offset = (navbar ? navbar.offsetHeight : 0) + 1;
+    var current = null;
+    sections.forEach(function (s) {
+      if (s.getBoundingClientRect().top - offset <= 0) current = s.id;
+    });
+    return current;
+  }
+
+  langLinks.forEach(function (link) {
+    link.addEventListener('click', function () {
+      var id = currentSectionId();
+      var base = link.getAttribute('href').split('#')[0];
+      link.setAttribute('href', id ? base + '#' + id : base);
+    });
+  });
+})();
+
 // Gallery carousel: arrow + dot navigation over a translateX track.
 // Track is forced to direction:ltr in CSS so slide order/index math stays
 // simple regardless of the page's overall RTL layout.

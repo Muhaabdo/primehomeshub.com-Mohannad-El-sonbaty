@@ -248,6 +248,10 @@ html[lang="ar"] .logo small{ font-family:var(--font-ar); letter-spacing:0; }
   padding:10px 22px;
   font-size:13.5px;
 }
+
+/* Keeps any #anchor jump (in-page nav links, or the language switch landing
+   on the same section) from sliding the section's top under the sticky navbar. */
+section[id]{ scroll-margin-top:80px; }
 .lang-switch:hover{ border-color:var(--gold); color:var(--gold-dark); }
 
 /* mobile nav toggle (pure CSS checkbox hack) */
@@ -471,6 +475,7 @@ html[lang="ar"] .highlight-item .h-num{ font-family:var(--font-ar); }
   .navbar .container{ height:64px; }
   .mobile-menu{ top:64px; }
   .nav-backdrop{ top:64px; }
+  section[id]{ scroll-margin-top:64px; }
 
   .hero{ min-height:0; align-items:flex-start; padding-top:20px; }
   /* Only heroes that actually have the scroll-down arrow need the extra
@@ -705,6 +710,19 @@ html[lang="ar"] .price-value small{ font-family:var(--font-ar); }
   font-weight:600;
   padding:6px 14px;
   border-radius:50px;
+}
+.property-card .discount-label{
+  position:absolute;
+  top:16px;
+  inset-inline-end:16px;
+  background:var(--primary);
+  color:var(--white);
+  font-size:12px;
+  font-weight:700;
+  padding:6px 12px;
+  border-radius:50px;
+  border:1px solid rgba(255,255,255,0.28);
+  line-height:1.2;
 }
 .property-card .body{ padding:24px; }
 .property-card h3{ font-size:19px; margin-bottom:6px; }
