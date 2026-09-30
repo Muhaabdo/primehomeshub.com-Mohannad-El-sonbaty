@@ -64,7 +64,8 @@
     var hasDiscount = discount > 0;
     var final = state.price * (1 - discount / 100);
     var savings = state.price - final;
-    var installmentValue = final * DOWN_PAYMENT_RATE;
+    // Each 1.5% installment is taken from the original 12-year price, not the discounted one
+    var installmentValue = state.price * DOWN_PAYMENT_RATE;
 
     discountBadge.textContent = hasDiscount
       ? (isAr ? ('خصم ' + discount + '%') : (discount + '% Off'))
